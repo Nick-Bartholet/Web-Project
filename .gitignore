@@ -1,0 +1,27 @@
+# Node / React / Vite
+node_modules/
+dist/
+build/
+*.log
+
+# Env files
+.env
+.env.local
+
+# Python / FastAPI
+__pycache__/
+.venv/
+venv/
+env/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Dataset (non su GitHub)
+Gesamtdatensatz.csv
+Teildatensatz.json
+Teildatensatz*.json
+Gesamtdatensatz*.csv
+# Auto detect text files and perform LF normalization
+* text=auto
