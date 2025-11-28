@@ -17,16 +17,26 @@ export default function App() {
       <aside className="sidebar">
         <img src="/logo-fhnw.png" className="sidebar-logo" />
 
-        <h1 className="sidebar-title">Menu:</h1>
-
+        <h1 className="sidebar-title">Menù:</h1>
         <div className="sidebar-menu">
-          <ul>
-            <li onClick={() => setActivatePage("uebersicht")}>Ubersicht</li>
-            <li onClick={() => setActivatePage("daten")}>Daten</li>
-            <li onClick={() => setActivatePage("visualisierungen")}>
-              Visualisierungen
-            </li>
-          </ul>
+          <button
+            className="sidebar-button"
+            onClick={() => setActivatePage("uebersicht")}
+          >
+            Übersicht
+          </button>
+          <button
+            className="sidebar-button"
+            onClick={() => setActivatePage("daten")}
+          >
+            Daten
+          </button>
+          <button
+            className="sidebar-button"
+            onClick={() => setActivatePage("visualisierungen")}
+          >
+            Visualisierungen
+          </button>
         </div>
       </aside>
 

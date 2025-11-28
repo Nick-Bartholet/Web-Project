@@ -25,13 +25,28 @@ body {
 }
 
 .sidebar-logo {
-  width: 100%;
-  margin-bottom: 20px;
+  width: 95%;
+  margin-bottom: 18px;
 }
 
 .sidebar-title {
   font-size: 20px;
   margin-bottom: 20px;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-button {
+  background-color: #fee60e;
+  color: #1a2a33;
+  border: 2px solid #1a2a33;
+  cursor: pointer;
+  width: 160px;
+  text-align: center;
 }
 
 .right-side {
@@ -43,14 +58,14 @@ body {
 
 .page-header {
   width: 100%;
-  padding: 24px 32px;
+  padding: 24px 10px;
   border-bottom: 1px solid #ddd;
   background: #cfcfcf;
   box-sizing: border-box;
 }
 
 .page-header h1 {
-  margin: 0;
+  margin-top: 20px;
   font-size: 28px;
 }
 
