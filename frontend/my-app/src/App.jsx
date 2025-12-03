@@ -3,13 +3,29 @@ import "./App.css";
 
 export default function App() {
   const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true); // Ladezustand
+  const [error, setError] = useState(null); // Fehlerzustand
 
   const [activatePage, setActivatePage] = useState("uebersicht");
 
   useEffect(() => {
-    fetch("/Teildatensatz.json")
-      .then((r) => r.json())
-      .then((data) => setRows(data));
+    // Daten vom Backend holen (Preview des Gesamtdatensatzes)
+    fetch("http://localhost:8000/daten/preview")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Antwort vom Server war nicht OK");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setRows(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fehler beim Laden der Daten:", err);
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -17,7 +33,7 @@ export default function App() {
       <aside className="sidebar">
         <img src="/logo-fhnw.png" className="sidebar-logo" />
 
-        <h1 className="sidebar-title">Menù:</h1>
+        <h1 className="sidebar-title">Menü:</h1>
         <div className="sidebar-menu">
           <button
             className="sidebar-button"
@@ -80,7 +96,43 @@ export default function App() {
           {activatePage === "daten" && (
             <>
               <h2>Daten</h2>
-              <p>Geladene Zeilen: {rows.length}</p>
+
+              {loading && <p>Daten werden geladen...</p>}
+
+              {error && (
+                <p style={{ color: "red" }}>
+                  Fehler beim Laden der Daten: {error}
+                </p>
+              )}
+
+              {!loading && !error && (
+                <>
+                  <p>Zeilen im Preview: {rows.length}</p>
+
+                  {rows.length > 0 ? (
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          {Object.keys(rows[0]).map((key) => (
+                            <th key={key}>{key}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((row, index) => (
+                          <tr key={index}>
+                            {Object.keys(rows[0]).map((key) => (
+                              <td key={key}>{row[key]}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p>Keine Daten gefunden.</p>
+                  )}
+                </>
+              )}
             </>
           )}
 
