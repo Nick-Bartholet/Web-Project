@@ -8,6 +8,13 @@ export default function App() {
 
   const [activatePage, setActivatePage] = useState("uebersicht");
 
+  // NEU: Standorte + Auswahl + Analyse-Ergebnis
+  const [standorte, setStandorte] = useState([]);
+  const [selectedStandort, setSelectedStandort] = useState("");
+  const [analyseResult, setAnalyseResult] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState(null);
+
   useEffect(() => {
     // Daten vom Backend holen (Preview des Gesamtdatensatzes)
     fetch("http://localhost:8000/daten/preview")
@@ -27,6 +34,49 @@ export default function App() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/analysis/standorte")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Standorte konnten nicht geladen werden");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setStandorte(data);
+
+        if (data.length > 0) {
+          setSelectedStandort(data[0]);
+        }
+      })
+      .catch((err) => {
+        console.error("Fehler beim Laden der Standorte:", err);
+        setAnalysisError(err.message);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedStandort) return;
+
+    setAnalysisLoading(true);
+    setAnalysisError(null);
+
+    fetch(
+      `http://localhost:8000/analysis/erwachsene/${encodeURIComponent(
+        selectedStandort
+      )}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setAnalyseResult(data);
+        setAnalysisLoading(false);
+      })
+      .catch((err) => {
+        setAnalysisError(err.message);
+        setAnalysisLoading(false);
+      });
+  }, [selectedStandort]);
 
   return (
     <div className="app">
@@ -139,7 +189,56 @@ export default function App() {
           {activatePage === "visualisierungen" && (
             <>
               <h2>Visualisierungen</h2>
-              <p>Hier könnten Visualisierungen angezeigt werden.</p>
+
+              <label>
+                Standort:{" "}
+                <select
+                  value={selectedStandort}
+                  onChange={(e) => setSelectedStandort(e.target.value)}
+                >
+                  {standorte.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div style={{ marginTop: "16px" }}>
+                {analysisLoading && <p>Analyse wird geladen...</p>}
+
+                {analysisError && (
+                  <p style={{ color: "red" }}>
+                    Fehler bei der Analyse: {analysisError}
+                  </p>
+                )}
+
+                {!analysisLoading && !analysisError && analyseResult && (
+                  <>
+                    <h3>Ergebnis</h3>
+                    <p>
+                      Erwachsene nach links:{" "}
+                      <strong>{analyseResult.adult_ltr}</strong>
+                    </p>
+                    <p>
+                      Erwachsene nach rechts:{" "}
+                      <strong>{analyseResult.adult_rtl}</strong>
+                    </p>
+                    <p>
+                      Ergebnis:{" "}
+                      <strong>
+                        {analyseResult.more_to_right
+                          ? "Mehr Erwachsene gehen nach rechts."
+                          : "Mehr Erwachsene gehen nach links oder gleich viele."}
+                      </strong>
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <p style={{ marginTop: "24px" }}>
+                interaktive Visualisierungen hier kommt
+              </p>
             </>
           )}
         </main>

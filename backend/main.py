@@ -79,3 +79,73 @@ def daten_gesamt_preview():
     data = load_gesamtdaten()
     return data[:10]
 """Gibt nur die ersten 10 Zeilen des Gesamtdatensatzes zurück // für Test und Frontend-Daten"""
+
+@app.get("/analysis/erwachsene")
+def analyse_erwachsene():
+    """
+    Zählt erwachsene Fussgänger nach Laufrichtung
+    (links / rechts) über den gesamten Datensatz.
+    """
+    data = load_gesamtdaten()
+
+    links = 0
+    rechts = 0
+
+    for row in data:
+        # Feldnamen ggf. an CSV anpassen
+        if row.get("altersgruppe") == "Erwachsene":
+            if row.get("richtung") == "links":
+                links += 1
+            elif row.get("richtung") == "rechts":
+                rechts += 1
+
+    return {
+        "links": links,
+        "rechts": rechts
+    }
+
+
+@app.get("/analysis/erwachsene/{standort}")
+def analyse_erwachsene_standort(standort: str):
+    csv_path = Path(__file__).parent / "data" / "Gesamtdatensatz.csv"
+
+    sum_ltr = 0
+    sum_rtl = 0
+
+    with csv_path.open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["location_name"] == standort:
+                sum_ltr += int(row.get("adult_ltr_pedestrians_count", 0))
+                sum_rtl += int(row.get("adult_rtl_pedestrians_count", 0))
+
+    return {
+        "standort": standort,
+        "adult_ltr": sum_ltr,
+        "adult_rtl": sum_rtl,
+        "more_to_right": sum_rtl > sum_ltr
+    }
+
+
+
+@app.get("/analysis/standorte")
+def list_standorte():
+    csv_path = Path(__file__).parent / "data" / "Gesamtdatensatz.csv"
+    standorte = set()
+
+    with csv_path.open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            name = (row.get("location_name") or "").strip()
+            if name:
+                standorte.add(name)
+
+    return sorted(standorte)
+
+
+@app.get("/debug/columns")
+def debug_columns():
+    csv_path = Path(__file__).parent / "data" / "Gesamtdatensatz.csv"
+    with csv_path.open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return {"columns": reader.fieldnames}
