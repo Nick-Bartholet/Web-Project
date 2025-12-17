@@ -48,6 +48,9 @@ export default function App() {
 
         if (data.length > 0) {
           setSelectedStandort(data[0]);
+          setAnalysisLoading(true);
+          setAnalysisError(null);
+          setAnalyseResult(null);
         }
       })
       .catch((err) => {
@@ -59,15 +62,17 @@ export default function App() {
   useEffect(() => {
     if (!selectedStandort) return;
 
-    setAnalysisLoading(true);
-    setAnalysisError(null);
-
     fetch(
       `http://localhost:8000/analysis/erwachsene/${encodeURIComponent(
         selectedStandort
       )}`
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Analyse konnte nicht geladen werden");
+        }
+        return res.json();
+      })
       .then((data) => {
         setAnalyseResult(data);
         setAnalysisLoading(false);
@@ -194,7 +199,12 @@ export default function App() {
                 Standort:{" "}
                 <select
                   value={selectedStandort}
-                  onChange={(e) => setSelectedStandort(e.target.value)}
+                  onChange={(e) => {
+                    setAnalysisError(null);
+                    setAnalyseResult(null);
+                    setAnalysisLoading(true);
+                    setSelectedStandort(e.target.value);
+                  }}
                 >
                   {standorte.map((s) => (
                     <option key={s} value={s}>
