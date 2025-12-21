@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import VegaTimeseries from "./components/VegaTimeseries";
 import "./App.css";
 
 export default function App() {
@@ -17,7 +18,7 @@ export default function App() {
 
   useEffect(() => {
     // Daten vom Backend holen (Preview des Gesamtdatensatzes)
-    fetch("http://localhost:8000/daten/preview")
+    fetch("http://127.0.0.1:8000/daten/preview")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Antwort vom Server war nicht OK");
@@ -36,7 +37,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8000/analysis/standorte")
+    fetch("http://127.0.0.1:8000/analysis/standorte")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Standorte konnten nicht geladen werden");
@@ -63,7 +64,7 @@ export default function App() {
     setAnalysisError(null);
 
     fetch(
-      `http://localhost:8000/analysis/erwachsene/${encodeURIComponent(
+      `http://127.0.0.1:8000/analysis/erwachsene/${encodeURIComponent(
         selectedStandort
       )}`
     )
@@ -236,9 +237,7 @@ export default function App() {
                 )}
               </div>
 
-              <p style={{ marginTop: "24px" }}>
-                interaktive Visualisierungen hier kommt
-              </p>
+              <VegaTimeseries standort={selectedStandort} />
             </>
           )}
         </main>

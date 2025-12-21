@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import csv
+import pandas as pd
+import altair as alt
 
 
 # FastAPI-App erstellen
@@ -149,3 +151,43 @@ def debug_columns():
     with csv_path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         return {"columns": reader.fieldnames}
+    
+# Hilfsfunktion: Wert in Integer umwandeln (mit Default)
+def to_int(value, default=0):
+    try:
+        if value is None or value == "":
+            return default
+        return int(float(value))
+    except:
+        return default
+
+@app.get("/api/timeseries/{standort}")
+def timeseries_standort(standort: str):
+    """
+    Zeitreihe pro Standort:
+    timestamp + verschiedene Zaehlungen (total, ltr, rtl, adult, child, zones...)
+    """
+    csv_path = Path(__file__).parent / "data" / "Gesamtdatensatz.csv"
+    result = []
+
+    with csv_path.open("r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if (row.get("location_name") or "").strip() != standort:
+                continue
+
+            result.append({
+                "timestamp": row.get("timestamp"),
+                "total": to_int(row.get("pedestrians_count")),
+                "ltr": to_int(row.get("ltr_pedestrians_count")),
+                "rtl": to_int(row.get("rtl_pedestrians_count")),
+                "adult": to_int(row.get("adult_pedestrians_count")),
+                "child": to_int(row.get("child_pedestrians_count")),
+                "zone1": to_int(row.get("zone_1_pedestrians_count")),
+                "zone2": to_int(row.get("zone_2_pedestrians_count")),
+                "zone3": to_int(row.get("zone_3_pedestrians_count")),
+            })
+
+    result.sort(key=lambda x: x["timestamp"] or "")
+    return result
+
