@@ -85,7 +85,7 @@ export default function VegaTimeseries({ standort }) {
       height: 320,
       data: { values: rows },
 
-      // ✅ Zoom / Pan (Drag-Bereich aufziehen)
+      //  Zoom / Pan (Drag-Bereich aufziehen)
       params: [
         {
           name: "zoom",
@@ -98,7 +98,7 @@ export default function VegaTimeseries({ standort }) {
             // fold macht (serie, value)
             { fold: fields, as: ["serie", "value"] },
 
-            // ✅ deutsche Labels für Legende + Tooltip
+            //  deutsche Labels für Legende + Tooltip
             {
               calculate:
                 "datum.serie === 'ltr' ? 'Nach links' :" +
@@ -125,14 +125,14 @@ export default function VegaTimeseries({ standort }) {
           field: "timestamp",
           type: "temporal",
           title: "Zeit",
-          // ✅ Zoom wirkt hier
+          //  Zoom wirkt hier
           scale: { domain: { param: "zoom" } },
         },
         y: {
           field: multipleLines ? "value" : fields[0],
           type: "quantitative",
           title: "Anzahl Fussgänger",
-          // ✅ Tausendertrennzeichen
+          //  Tausendertrennzeichen
           axis: { format: ",.0f" },
         },
 
